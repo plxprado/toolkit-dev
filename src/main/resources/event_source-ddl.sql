@@ -1,6 +1,66 @@
 -- DROP SCHEMA eventsourcing;
 
 CREATE SCHEMA eventsourcing AUTHORIZATION postgres;
+
+-- DROP SEQUENCE eventsourcing.sq_saga_cicle_id;
+
+CREATE SEQUENCE eventsourcing.sq_saga_cicle_id
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 9223372036854775807
+	START 1
+	CACHE 1
+	NO CYCLE;
+
+-- Permissions
+
+ALTER SEQUENCE eventsourcing.sq_saga_cicle_id OWNER TO postgres;
+GRANT ALL ON SEQUENCE eventsourcing.sq_saga_cicle_id TO postgres;
+
+-- DROP SEQUENCE eventsourcing.sq_saga_event_aggregation_id;
+
+CREATE SEQUENCE eventsourcing.sq_saga_event_aggregation_id
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 9223372036854775807
+	START 1
+	CACHE 1
+	NO CYCLE;
+
+-- Permissions
+
+ALTER SEQUENCE eventsourcing.sq_saga_event_aggregation_id OWNER TO postgres;
+GRANT ALL ON SEQUENCE eventsourcing.sq_saga_event_aggregation_id TO postgres;
+
+-- DROP SEQUENCE eventsourcing.sq_snapshot_id;
+
+CREATE SEQUENCE eventsourcing.sq_snapshot_id
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 9223372036854775807
+	START 1
+	CACHE 1
+	NO CYCLE;
+
+-- Permissions
+
+ALTER SEQUENCE eventsourcing.sq_snapshot_id OWNER TO postgres;
+GRANT ALL ON SEQUENCE eventsourcing.sq_snapshot_id TO postgres;
+
+-- DROP SEQUENCE eventsourcing.sq_step_saga_id;
+
+CREATE SEQUENCE eventsourcing.sq_step_saga_id
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 9223372036854775807
+	START 1
+	CACHE 1
+	NO CYCLE;
+
+-- Permissions
+
+ALTER SEQUENCE eventsourcing.sq_step_saga_id OWNER TO postgres;
+GRANT ALL ON SEQUENCE eventsourcing.sq_step_saga_id TO postgres;
 -- eventsourcing.step_saga definition
 
 -- Drop table
@@ -27,13 +87,13 @@ GRANT ALL ON TABLE eventsourcing.step_saga TO postgres;
 -- DROP TABLE eventsourcing.event_aggregation;
 
 CREATE TABLE eventsourcing.event_aggregation (
-    id uuid NOT NULL,
-	related_id uuid NOT NULL,
 	"name" varchar NOT NULL, -- name
 	creatrion_date timetz NOT NULL,
 	id_transaction_event uuid NULL,
 	command_action varchar NOT NULL,
 	"version" int8 NOT NULL,
+	id uuid NOT NULL,
+	related_id uuid NOT NULL,
 	CONSTRAINT event_aggregation_pk PRIMARY KEY (id),
 	CONSTRAINT event_aggregation_event_aggregation_fk FOREIGN KEY (related_id) REFERENCES eventsourcing.event_aggregation(id)
 );
@@ -80,6 +140,8 @@ CREATE TABLE eventsourcing.saga_event_aggregation (
 	status varchar NOT NULL,
 	saga_cicle_id int8 NOT NULL,
 	aggregation_id uuid NOT NULL,
+	date_processed timetz NOT NULL,
+	state_value numeric(14, 2) DEFAULT 0.0 NOT NULL,
 	CONSTRAINT saga_event_aggregation_pk PRIMARY KEY (id),
 	CONSTRAINT saga_event_aggregation_unique UNIQUE (status),
 	CONSTRAINT saga_event_aggregation_event_aggregation_fk FOREIGN KEY (aggregation_id) REFERENCES eventsourcing.event_aggregation(id),
